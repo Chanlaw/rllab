@@ -56,7 +56,7 @@ class FirstOrderOptimizer(Serializable):
         self._input_vars = None
         self._train_op = None
 
-    def update_opt(self, loss, target, inputs, extra_inputs=None, **kwargs):
+    def update_opt(self, loss, target, inputs, extra_inputs=None, diagnostic_vars=None, **kwargs):
         """
         :param loss: Symbolic expression for the loss function.
         :param target: A parameterized object to optimize over. It should implement methods of the
@@ -77,12 +77,23 @@ class FirstOrderOptimizer(Serializable):
         self._input_vars = inputs + extra_inputs
         self._opt_fun = ext.lazydict(
             f_loss=lambda: tensor_utils.compile_function(inputs + extra_inputs, loss),
+            f_loss_diagnostics=lambda: tensor_utils.compile_function(inputs+extra_inputs, 
+                                                    loss + list(diagnostic_vars.values()))
         )
 
     def loss(self, inputs, extra_inputs=None):
         if extra_inputs is None:
             extra_inputs = tuple()
         return self._opt_fun["f_loss"](*(tuple(inputs) + extra_inputs))
+
+    def loss_diagnostics(self, inputs, extra_inputs=None):
+        if extra_inputs is None:
+            extra_inputs = tuple()
+        loss, *diagnostics = self._opt_fun["f_loss_diagnostics"](*(tuple(inputs) + extra_inputs))
+        diags={}
+        for k, diag_val in zip(self.diagnostic_vars.keys(), diagnostics):
+            diags[k] = np.mean(diag_val)
+        return loss, diags
 
     def optimize(self, inputs, extra_inputs=None, callback=None):
 
