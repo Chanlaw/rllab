@@ -1,4 +1,4 @@
-import pickle
+import dill as pickle
 
 import tensorflow as tf
 from rllab.sampler.base import BaseSampler
