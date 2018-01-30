@@ -1,7 +1,7 @@
 
 
 import numpy as np
-import pickle as pickle
+import dill as pickle
 from sandbox.rocky.tf.misc import tensor_utils
 from rllab.misc import logger
 
@@ -10,7 +10,7 @@ import uuid
 
 
 def worker_init_envs(G, alloc, scope, env):
-    logger.log("initializing environment on worker %d" % G.worker_id)
+    # logger.log("initializing environment on worker %d" % G.worker_id)
     if not hasattr(G, 'parallel_vec_envs'):
         G.parallel_vec_envs = dict()
         G.parallel_vec_env_template = dict()
@@ -22,7 +22,7 @@ def worker_init_envs(G, alloc, scope, env):
 
 def worker_run_reset(G, flags, scope):
     if not hasattr(G, 'parallel_vec_envs'):
-        logger.log("on worker %d" % G.worker_id)
+        # logger.log("on worker %d" % G.worker_id)
         import traceback
         for line in traceback.format_stack():
             logger.log(line)
@@ -144,7 +144,6 @@ class ParallelVecEnvExecutor(object):
         ids, flat_obs = list(map(np.concatenate, list(zip(*results))))
         zipped = list(zip(ids, flat_obs))
         sorted_obs = np.asarray([x[1] for x in sorted(zipped, key=lambda x: x[0])])
-
         done_ids, = np.where(dones)
         done_flat_obs = sorted_obs[done_ids]
         done_unflat_obs = self.observation_space.unflatten_n(done_flat_obs)
