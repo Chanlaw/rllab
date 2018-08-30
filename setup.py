@@ -4,7 +4,7 @@ from setuptools import setup,find_packages
 setup(
     name='rllab',
     install_requires=['theano', 'cached-property', 'python-dateutil', 
-'path.py', 'joblib', 'pyprind', 'dill'],
+'path.py', 'joblib==0.11', 'pyprind', 'dill'],
     packages=[package for package in find_packages()
                 if package.startswith('rllab')],
     version='0.1.0',
