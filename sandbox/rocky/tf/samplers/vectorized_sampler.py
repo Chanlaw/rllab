@@ -27,8 +27,9 @@ class VectorizedSampler(BaseSampler):
             self.vec_env = self.algo.env.vec_env_executor(n_envs=n_envs, max_path_length=self.algo.max_path_length)
         else:
             envs = [pickle.loads(pickle.dumps(self.algo.env)) for _ in range(n_envs)]
-            self.vec_env = VecEnvExecutor(
-                envs=envs,
+            self.vec_env = ParallelVecEnvExecutor(
+                env = self.algo.env,
+                n=n_envs,
                 max_path_length=self.algo.max_path_length
             )
         self.env_spec = self.algo.env.spec
